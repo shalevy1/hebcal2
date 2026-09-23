@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Today</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Newsreader:opsz,wght@6..72,480;6..72,600&family=Spline+Sans+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --walnut: #241c16;
+      --limestone: #f4e7d4;
+      --ink: #1c140e;
+      --clay: #7a624c;
+      --tekhelet: #1a4a78;
+      --gold: #9a7433;
+      --rule: rgba(26, 74, 120, 0.22);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; min-height: 100%; }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 1.5rem;
+      background:
+        radial-gradient(1200px 700px at 50% 0%, #3a2e24 0%, transparent 55%),
+        var(--walnut);
+      color: var(--ink);
+      font-family: "Newsreader", "Iowan Old Style", Palatino, serif;
+    }
+
+    h1, h2, p, ul { margin: 0; }
+
+    .sheet {
+      width: min(100%, 58rem);
+      background: var(--limestone);
+      padding: 2.25rem 2rem 1.75rem;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+    }
+
+    .mast {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      column-gap: 1.75rem;
+      align-items: start;
+    }
+
+    .label {
+      font-family: "Spline Sans Mono", ui-monospace, monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--tekhelet);
+    }
+
+    .english-col { text-align: left; }
+    .time-col { text-align: center; padding-top: 0.15rem; }
+    .hebrew-col { text-align: right; }
+
+    .weekday {
+      margin-top: 0.45rem;
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .hebrew-day {
+      font-family: "Frank Ruhl Libre", "David Libre", "Times New Roman", serif;
+      font-size: clamp(1.35rem, 2.4vw, 1.7rem);
+      font-weight: 500;
+    }
+
+    .english {
+      margin-top: 0.2rem;
+      font-size: clamp(1.45rem, 2.6vw, 1.9rem);
+      font-weight: 600;
+      line-height: 1.2;
+      text-wrap: balance;
+    }
+
+    .hebrew {
+      margin-top: 0.15rem;
+      font-family: "Frank Ruhl Libre", "David Libre", "Times New Roman", serif;
+      font-weight: 700;
+      font-size: clamp(1.7rem, 3vw, 2.45rem);
+      line-height: 1.3;
+    }
+
+    .gloss {
+      margin-top: 0.45rem;
+      font-size: 1.05rem;
+      line-height: 1.35;
+      color: var(--clay);
+    }
+
+    .clock {
+      margin-top: 0.4rem;
+      font-family: "Spline Sans Mono", ui-monospace, monospace;
+      font-size: clamp(1.45rem, 2.8vw, 2.05rem);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.03em;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+
+    .rule {
+      height: 3px;
+      margin: 1.6rem 0 0;
+      background: var(--tekhelet);
+      border: 0;
+    }
+
+    .band { margin-top: 1.45rem; }
+
+    .band .label { display: block; margin-bottom: 0.75rem; }
+
+    .span {
+      margin: -0.4rem 0 0.75rem;
+      color: var(--clay);
+      font-size: 1rem;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: 0.35rem 1.25rem;
+      align-items: baseline;
+    }
+
+    .split-en {
+      font-size: 1.3rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .split-mid {
+      text-align: center;
+      color: var(--clay);
+      font-family: "Spline Sans Mono", ui-monospace, monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+    }
+
+    .split-he {
+      text-align: right;
+      font-family: "Frank Ruhl Libre", "David Libre", "Times New Roman", serif;
+      font-size: 1.55rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .holidays {
+      list-style: none;
+      padding: 0;
+    }
+
+    .holiday { padding: 0.7rem 0; }
+
+    .holiday + .holiday,
+    .zman + .zman { border-top: 1px solid var(--rule); }
+
+    .zman { padding: 0.42rem 0; }
+
+    .zman .split-en { font-size: 1.15rem; }
+
+    .zman .split-he { font-size: 1.35rem; }
+
+    .zman .split-mid {
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+    }
+
+    .zman.is-next .split-mid { color: var(--gold); }
+
+    .empty {
+      color: var(--clay);
+      font-size: 1.15rem;
+    }
+
+    .note {
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: var(--clay);
+    }
+
+    .status { margin-top: 1rem; color: var(--tekhelet); }
+    .status[hidden] { display: none; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--tekhelet);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 760px) {
+      .mast,
+      .split {
+        grid-template-columns: 1fr;
+        row-gap: 0.35rem;
+      }
+
+      .time-col { padding: 1.1rem 0; }
+      .hebrew-col { padding-top: 0.4rem; }
+
+      .split-mid { text-align: left; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="sheet">
+    <h1 class="sr-only">Today</h1>
+
+    <div class="mast">
+      <section class="english-col">
+        <h2 class="label">English</h2>
+        <p class="weekday" id="english-weekday">…</p>
+        <p class="english" id="english">…</p>
+      </section>
+
+      <section class="time-col">
+        <h2 class="label">Time</h2>
+        <p class="clock" id="clock" aria-live="off">…</p>
+      </section>
+
+      <section class="hebrew-col">
+        <h2 class="label">Hebrew</h2>
+        <p class="weekday hebrew-day" id="hebrew-day" lang="he" dir="rtl">…</p>
+        <p class="hebrew" id="hebrew" lang="he" dir="rtl">…</p>
+        <p class="gloss" id="gloss">…</p>
+      </section>
+    </div>
+
+    <hr class="rule">
+
+    <section class="band" aria-labelledby="zmanim-label">
+      <h2 class="label" id="zmanim-label">Zmanim</h2>
+      <p class="span" id="zmanim-place">…</p>
+      <ul class="holidays" id="zmanim"></ul>
+    </section>
+
+    <section class="band" aria-labelledby="reading-label">
+      <h2 class="label" id="reading-label">Torah reading</h2>
+      <div class="split">
+        <p class="split-en" id="reading-en">…</p>
+        <p class="split-mid" id="reading-when">…</p>
+        <p class="split-he" id="reading-he" lang="he" dir="rtl">…</p>
+      </div>
+    </section>
+
+    <section class="band" aria-labelledby="holiday-label">
+      <h2 class="label" id="holiday-label">Holidays</h2>
+      <p class="span" id="holiday-span">…</p>
+      <ul class="holidays" id="holidays"></ul>
+    </section>
+
+    <p class="note">Diaspora schedule. The Hebrew date follows the civil day. The Jewish day begins at sunset.</p>
+    <p class="status" id="status" hidden></p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@hebcal/core@6/dist/bundle.min.js"></script>
+  <script>
+    const HEBREW_DAYS = [
+      "יוֹם רִאשׁוֹן",
+      "יוֹם שֵׁנִי",
+      "יוֹם שְׁלִישִׁי",
+      "יוֹם רְבִיעִי",
+      "יוֹם חֲמִישִׁי",
+      "יוֹם שִׁישִׁי",
+      "שַׁבָּת",
+    ];
+    const DIASPORA = false;
+
+    const englishWeekday = new Intl.DateTimeFormat("en-US", { weekday: "long" });
+    const englishDate = new Intl.DateTimeFormat("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+    const englishDay = new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+    });
+    const monthDay = new Intl.DateTimeFormat("en-US", {
+      month: "long",
+      day: "numeric",
+    });
+    const clockFormat = new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+
+    const englishWeekdayEl = document.getElementById("english-weekday");
+    const englishEl = document.getElementById("english");
+    const hebrewDayEl = document.getElementById("hebrew-day");
+    const hebrewEl = document.getElementById("hebrew");
+    const glossEl = document.getElementById("gloss");
+    const clockEl = document.getElementById("clock");
+    const readingEnEl = document.getElementById("reading-en");
+    const readingWhenEl = document.getElementById("reading-when");
+    const readingHeEl = document.getElementById("reading-he");
+    const holidaySpanEl = document.getElementById("holiday-span");
+    const holidaysEl = document.getElementById("holidays");
+    const zmanimPlaceEl = document.getElementById("zmanim-place");
+    const zmanimEl = document.getElementById("zmanim");
+    const statusEl = document.getElementById("status");
+
+    const ZMANIM = [
+      { en: "Dawn", he: "עֲלוֹת הַשַּׁחַר", at: (z) => z.alotHaShachar() },
+      { en: "Misheyakir", he: "מִשֶּׁיַּכִּיר", at: (z) => z.misheyakir() },
+      { en: "Sunrise", he: "נֵץ הַחַמָּה", at: (z) => z.sunrise() },
+      { en: "Latest Shema", he: "סוֹף זְמַן שְׁמַע", at: (z) => z.sofZmanShma() },
+      { en: "Latest Shacharit", he: "סוֹף זְמַן תְּפִלָּה", at: (z) => z.sofZmanTfilla() },
+      { en: "Midday", he: "חֲצוֹת", at: (z) => z.chatzot() },
+      { en: "Earliest Mincha", he: "מִנְחָה גְּדוֹלָה", at: (z) => z.minchaGedola() },
+      { en: "Mincha Ketana", he: "מִנְחָה קְטַנָּה", at: (z) => z.minchaKetana() },
+      { en: "Plag HaMincha", he: "פְּלַג הַמִּנְחָה", at: (z) => z.plagHaMincha() },
+      { en: "Sunset", he: "שְׁקִיעָה", at: (z) => z.sunset() },
+      { en: "Nightfall", he: "צֵאת הַכּוֹכָבִים", at: (z) => z.tzeit() },
+    ];
+
+    const TZ_CITY = {
+      "America/Los_Angeles": "Los Angeles",
+      "America/New_York": "New York",
+      "America/Chicago": "Chicago",
+      "America/Denver": "Denver",
+      "America/Phoenix": "Phoenix",
+      "America/Detroit": "Detroit",
+      "America/Toronto": "Toronto",
+      "America/Vancouver": "Vancouver",
+      "America/Montreal": "Montreal",
+      "Europe/London": "London",
+      "Europe/Paris": "Paris",
+      "Europe/Berlin": "Berlin",
+      "Asia/Jerusalem": "Jerusalem",
+      "Asia/Tel_Aviv": "Tel Aviv",
+      "Australia/Sydney": "Sydney",
+      "Australia/Melbourne": "Melbourne",
+      "America/Sao_Paulo": "Sao Paulo",
+      "America/Mexico_City": "Mexico City",
+      "America/Bogota": "Bogota",
+      "Pacific/Honolulu": "Hawaii",
+      "Europe/Moscow": "Moscow",
+      "Europe/Helsinki": "Helsinki",
+      "Africa/Johannesburg": "Johannesburg",
+      "Europe/Kyiv": "Kiev",
+      "Europe/Kiev": "Kiev",
+      "Europe/Budapest": "Budapest",
+      "America/Argentina/Buenos_Aires": "Buenos Aires",
+    };
+
+    let shownDay = "";
+    let place = null;
+    let zmanKey = "";
+
+    function civilDate(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    function addDays(date, days) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+    }
+
+    function weekStart(date) {
+      const start = civilDate(date);
+      return addDays(start, -start.getDay());
+    }
+
+    function formatWeekSpan(start, end) {
+      const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+      if (sameMonth) {
+        const month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(start);
+        return month + " " + start.getDate() + "–" + end.getDate() + ", " + end.getFullYear();
+      }
+      if (start.getFullYear() === end.getFullYear()) {
+        return monthDay.format(start) + " – " + monthDay.format(end) + ", " + end.getFullYear();
+      }
+      return englishDate.format(start) + " – " + englishDate.format(end);
+    }
+
+    function renderText(event, locale) {
+      try {
+        return event.render(locale);
+      } catch (err) {
+        return event.getDesc();
+      }
+    }
+
+    function torahReading(hd) {
+      const sedra = hebcal.getSedra(hd.getFullYear(), DIASPORA).lookup(hd);
+      const when = sedra.hdate.greg();
+      if (sedra.chag) {
+        const events = hebcal.getHolidaysOnDate(sedra.hdate, DIASPORA) || [];
+        const holiday = events[0];
+        return {
+          en: holiday ? renderText(holiday, "en") : "Holiday reading",
+          he: holiday ? renderText(holiday, "he") : "",
+          when,
+        };
+      }
+      const event = new hebcal.ParshaEvent(sedra);
+      return {
+        en: renderText(event, "en"),
+        he: renderText(event, "he"),
+        when,
+      };
+    }
+
+    function fillHolidays(now) {
+      const start = weekStart(now);
+      const end = addDays(start, 6);
+      holidaySpanEl.textContent = formatWeekSpan(start, end);
+
+      const items = [];
+      for (let i = 0; i < 7; i++) {
+        const day = addDays(start, i);
+        const hd = new hebcal.HDate(day);
+        const events = hebcal.getHolidaysOnDate(hd, DIASPORA) || [];
+        for (const event of events) {
+          items.push({ event, day, hd });
+        }
+      }
+
+      holidaysEl.replaceChildren();
+      if (!items.length) {
+        const empty = document.createElement("li");
+        empty.className = "empty";
+        empty.textContent = "No holidays this week.";
+        holidaysEl.append(empty);
+        return;
+      }
+
+      for (const item of items) {
+        const row = document.createElement("li");
+        row.className = "holiday split";
+
+        const en = document.createElement("p");
+        en.className = "split-en";
+        en.textContent = renderText(item.event, "en");
+
+        const mid = document.createElement("p");
+        mid.className = "split-mid";
+        mid.textContent = englishDay.format(item.day);
+
+        const he = document.createElement("p");
+        he.className = "split-he";
+        he.lang = "he";
+        he.dir = "rtl";
+        he.textContent = renderText(item.event, "he");
+
+        row.append(en, mid, he);
+        holidaysEl.append(row);
+      }
+    }
+
+    function locationForTimezone(tzid) {
+      const preferred = TZ_CITY[tzid];
+      if (preferred) {
+        const match = hebcal.Location.lookup(preferred);
+        if (match) return match;
+      }
+      for (const name of Object.values(TZ_CITY)) {
+        const loc = hebcal.Location.lookup(name);
+        if (loc && loc.getTzid() === tzid) return loc;
+      }
+      return hebcal.Location.lookup("Los Angeles");
+    }
+
+    function formatZman(date, tzid) {
+      if (!date || Number.isNaN(date.getTime())) return "—";
+      return new Intl.DateTimeFormat(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: tzid,
+      }).format(date);
+    }
+
+    function fillZmanim(now) {
+      if (!place) {
+        place = locationForTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+      }
+      const name = place.getShortName() || place.getName() || "This location";
+      const key = now.toDateString() + "|" + name + "|" + place.getLatitude() + "," + place.getLongitude();
+      if (key === zmanKey) return;
+      zmanKey = key;
+
+      zmanimPlaceEl.textContent = name + " · Gra";
+      const tzid = place.getTzid();
+      const zman = new hebcal.Zmanim(place, now, false);
+      zmanimEl.replaceChildren();
+
+      for (const item of ZMANIM) {
+        const when = item.at(zman);
+        const row = document.createElement("li");
+        row.className = "zman split";
+        if (when && !Number.isNaN(when.getTime())) row.dataset.at = String(when.getTime());
+
+        const en = document.createElement("p");
+        en.className = "split-en";
+        en.textContent = item.en;
+
+        const mid = document.createElement("p");
+        mid.className = "split-mid";
+        mid.textContent = formatZman(when, tzid);
+
+        const he = document.createElement("p");
+        he.className = "split-he";
+        he.lang = "he";
+        he.dir = "rtl";
+        he.textContent = item.he;
+
+        row.append(en, mid, he);
+        zmanimEl.append(row);
+      }
+    }
+
+    function markNextZman(now) {
+      let marked = false;
+      for (const row of zmanimEl.children) {
+        const at = Number(row.dataset.at);
+        const upcoming = !marked && Number.isFinite(at) && at > now.getTime();
+        row.classList.toggle("is-next", upcoming);
+        if (upcoming) marked = true;
+      }
+    }
+
+    function useCoordinates(latitude, longitude) {
+      const tzid = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      place = new hebcal.Location(latitude, longitude, false, tzid, "Your location");
+      zmanKey = "";
+      fillZmanim(new Date());
+    }
+
+    function renderDates(now) {
+      const dayKey = now.toDateString();
+      if (dayKey === shownDay) return;
+      shownDay = dayKey;
+
+      const hd = new hebcal.HDate(now);
+      englishWeekdayEl.textContent = englishWeekday.format(now);
+      englishEl.textContent = englishDate.format(now);
+      hebrewDayEl.textContent = HEBREW_DAYS[hd.getDay()];
+      hebrewEl.textContent = hd.renderGematriya();
+      glossEl.textContent = hd.render("en");
+
+      const reading = torahReading(hd);
+      readingEnEl.textContent = reading.en;
+      readingHeEl.textContent = reading.he;
+      readingWhenEl.textContent = englishDay.format(reading.when);
+      fillHolidays(now);
+    }
+
+    function tick() {
+      const now = new Date();
+      renderDates(now);
+      clockEl.textContent = clockFormat.format(now);
+      clockEl.dateTime = now.toISOString();
+      fillZmanim(now);
+      markNextZman(now);
+    }
+
+    if (!window.hebcal || typeof hebcal.HDate !== "function") {
+      statusEl.hidden = false;
+      statusEl.textContent = "The Hebcal library did not load. Check the network connection and reload.";
+    } else {
+      tick();
+      setInterval(tick, 1000);
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => useCoordinates(pos.coords.latitude, pos.coords.longitude),
+          () => {},
+          { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
+        );
+      }
+    }
+  </script>
+</body>
+</html>
