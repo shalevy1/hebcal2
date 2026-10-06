@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hebcal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Frank+Ruhl+Libre:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bark: #3f362c;
+      --gold: #e6c36a;
+      --gold-deep: #c4963a;
+      --cream: #f6f3ea;
+      --gap: #e6e0d4;
+      --ink: #1c1a17;
+      --blue: #1d4e9c;
+      --bar: #161616;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; height: 100%; }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      background: var(--bark);
+      color: var(--ink);
+      font-family: "Source Sans 3", "Segoe UI", sans-serif;
+    }
+
+    h1, h2, h3, p, ul { margin: 0; }
+
+    .top, .foot {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      gap: 1rem;
+      padding: 0.55rem 1.25rem;
+    }
+
+    .parsha-en, .parsha-he {
+      min-width: 0;
+      font-family: "Frank Ruhl Libre", "Times New Roman", serif;
+      font-weight: 700;
+      font-size: clamp(1.8rem, 3.2vw, 3.3rem);
+      line-height: 1;
+      color: var(--gold);
+    }
+
+    .parsha-en {
+      font-family: Fraunces, "Times New Roman", serif;
+      font-size: clamp(1.35rem, 2.4vw, 2.4rem);
+    }
+
+    .parsha-he { text-align: right; }
+
+    .emblem {
+      width: 4.4rem;
+      height: 5rem;
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      background:
+        linear-gradient(var(--bark), var(--bark)) padding-box,
+        linear-gradient(var(--gold), #8c6a28) border-box;
+      border: 2px solid transparent;
+      clip-path: polygon(50% 0, 100% 14%, 100% 86%, 50% 100%, 0 86%, 0 14%);
+      font-family: "Frank Ruhl Libre", serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr) minmax(0, 1.12fr);
+      gap: 0.55rem;
+      padding: 0.55rem;
+      background: var(--gap);
+      min-height: 0;
+    }
+
+    .col {
+      background: var(--cream);
+      min-width: 0;
+      min-height: 0;
+      overflow: auto;
+      padding: 0.35rem 0.7rem 0.7rem;
+    }
+
+    .col-title {
+      font-family: "Frank Ruhl Libre", serif;
+      font-weight: 700;
+      font-size: clamp(1.7rem, 2.6vw, 2.8rem);
+      line-height: 1;
+      text-align: center;
+      color: var(--gold-deep);
+      padding: 0.15rem 0 0.45rem;
+    }
+
+    .bars, .split2, .cards {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .bars, .split2 { grid-template-columns: 1fr 1fr 1fr; }
+    .split2 { grid-template-columns: 1fr 1fr; margin-top: 0.55rem; }
+    .cards { grid-template-columns: 1fr 1fr; margin-top: 0.55rem; }
+
+    .bar, .card h3, .shabbos-label {
+      background: var(--bar);
+      color: #fff;
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.35rem;
+    }
+
+    .card h3, .mini-title {
+      font-family: "Frank Ruhl Libre", serif;
+      letter-spacing: 0;
+      text-transform: none;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--gold);
+      background: #2a241e;
+    }
+
+    .mini-title {
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    ul { list-style: none; padding: 0.28rem 0.15rem 0; }
+
+    .pair, .zline, .sched-row, .week-row {
+      display: grid;
+      align-items: baseline;
+      gap: 0.35rem 0.5rem;
+      line-height: 1.35;
+    }
+
+    .pair, .zline { grid-template-columns: minmax(0, 1fr) auto; padding: 0.08rem 0.2rem; }
+    .pair span:first-child { white-space: nowrap; }
+    .zline { grid-template-columns: auto 1fr; }
+    .sched-row { grid-template-columns: 4.5rem 1fr; }
+    .week-row { grid-template-columns: 1fr auto; padding: 0.12rem 0; }
+
+    .pair span:last-child, .zline span:first-child, .sched-time, .when {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+    }
+
+    .he, .sched-he, .week-he {
+      font-family: "Frank Ruhl Libre", serif;
+      text-align: right;
+    }
+
+    .he { font-size: 1.05rem; }
+    .soon { color: var(--gold-deep); }
+
+    .week { margin-top: 0.6rem; }
+    .week ul { padding-top: 0.35rem; }
+
+    .card {
+      border: 1px solid #d9d1c3;
+      background: #fbf9f4;
+    }
+
+    .card p { padding: 0.45rem 0.55rem 0.55rem; font-size: 0.92rem; }
+
+    .center { text-align: center; padding-top: 0.7rem; }
+
+    .center .emblem { margin: 0 auto; }
+
+    .place {
+      margin-top: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6d6458;
+    }
+
+    .center-parsha {
+      margin: 0.2rem 0 0.55rem;
+      font-family: "Frank Ruhl Libre", serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .day-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      color: var(--blue);
+      font-weight: 700;
+      margin-top: 0.45rem;
+    }
+
+    .day-head .he { font-size: 1.2rem; color: var(--blue); }
+
+    .sched-row { color: var(--blue); font-size: 0.95rem; }
+    .sched-he { font-size: 1.08rem; color: var(--blue); }
+
+    .shabbos-note {
+      padding: 0.4rem 0.15rem 0;
+      font-size: 0.98rem;
+    }
+
+    .shabbos-note strong {
+      font-family: "Frank Ruhl Libre", serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .foot p { color: #f4efe6; }
+    .en-date, .he-date { font-size: clamp(1.15rem, 2vw, 1.65rem); }
+    .he-date {
+      font-family: "Frank Ruhl Libre", serif;
+      text-align: right;
+      color: var(--gold);
+    }
+    .clock {
+      font-family: Fraunces, "Times New Roman", serif;
+      font-weight: 700;
+      font-size: clamp(1.7rem, 3vw, 2.5rem);
+      color: var(--gold);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .view-switch {
+      grid-column: 1 / -1;
+      justify-self: center;
+      margin-top: 0.15rem;
+      padding: 0.32rem 0.75rem;
+      border: 1px solid var(--gold);
+      background: transparent;
+      color: var(--gold);
+      font: 700 0.75rem/1 "Source Sans 3", "Segoe UI", sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .view-switch:hover { background: rgba(230, 195, 106, 0.14); }
+
+    .status { padding: 0.4rem 0.8rem; color: var(--gold); }
+    .status[hidden] { display: none; }
+
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    body.view-shabbos {
+      display: block;
+      height: auto;
+      min-height: 100vh;
+    }
+
+    body.view-shabbos .col { overflow: visible; }
+
+    body.view-shabbos .top,
+    body.view-shabbos .col-chol,
+    body.view-shabbos .col-center {
+      display: none;
+    }
+
+    body.view-shabbos .board {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    body.view-shabbos .foot {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+      gap: 0.2rem;
+      padding: 0.9rem 1rem 1.05rem;
+    }
+
+    body.view-shabbos .he-date { text-align: center; }
+
+    body.view-shabbos .clock {
+      color: #f7f1e4;
+      font-size: clamp(2rem, 4.5vw, 2.85rem);
+    }
+
+    @media (max-width: 760px) {
+      body { height: auto; display: block; }
+      .board { grid-template-columns: 1fr; }
+      .top, .foot { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+      .parsha-he, .he-date { text-align: center; }
+      .col { overflow: visible; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <p class="parsha-en" id="parsha-en">…</p>
+    <div class="emblem" aria-hidden="true">הלוח</div>
+    <h1 class="parsha-he" id="parsha-he" lang="he" dir="rtl">…</h1>
+  </header>
+
+  <main class="board">
+    <section class="col col-chol" aria-labelledby="chol-title">
+      <h2 class="col-title" id="chol-title" lang="he" dir="rtl">זמני חול</h2>
+      <div class="bars">
+        <div>
+          <p class="bar">Shacharis</p>
+          <ul id="shacharis"></ul>
+        </div>
+        <div>
+          <p class="bar">Mincha</p>
+          <ul id="mincha"></ul>
+        </div>
+        <div>
+          <p class="bar">Maariv</p>
+          <ul id="maariv"></ul>
+        </div>
+      </div>
+      <div class="split2">
+        <div>
+          <p class="bar">Special</p>
+          <ul id="special"></ul>
+        </div>
+        <div>
+          <p class="bar">Daily Zmanim</p>
+          <ul id="daily"></ul>
+        </div>
+      </div>
+      <div class="week">
+        <p class="bar">This Week</p>
+        <ul id="week"></ul>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <h3 lang="he">היום</h3>
+          <p id="today-card">…</p>
+        </article>
+        <article class="card">
+          <h3 lang="he">הפרשה</h3>
+          <p id="parsha-card">…</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="col center col-center" aria-label="Shabbat schedule">
+      <div class="emblem" aria-hidden="true">הלוח</div>
+      <p class="place" id="place">…</p>
+      <p class="center-parsha" id="center-parsha" lang="he" dir="rtl">…</p>
+      <div id="days"></div>
+    </section>
+
+    <section class="col" aria-labelledby="shabbat-title">
+      <h2 class="col-title" id="shabbat-title" lang="he" dir="rtl">זמני שבת</h2>
+      <div class="split2">
+        <div>
+          <p class="bar">Leil Shabbos</p>
+          <ul id="leil"></ul>
+        </div>
+        <div>
+          <p class="bar">Shabbos Day</p>
+          <ul id="shabbos-day"></ul>
+        </div>
+      </div>
+      <div class="week">
+        <p class="bar">This Shabbos</p>
+        <div class="shabbos-note" id="this-shabbos">…</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p class="en-date" id="en-date">…</p>
+    <p class="clock" id="clock" aria-live="off">…</p>
+    <p class="he-date" id="he-date" lang="he" dir="rtl">…</p>
+    <button type="button" class="view-switch" id="view-switch">Whole board</button>
+  </footer>
+  <p class="status" id="status" hidden></p>
+
+  <script src="https://cdn.jsdelivr.net/npm/@hebcal/core@6/dist/bundle.min.js"></script>
+  <script>
+    const config = {
+      // "shabbos" shows Shabbat times and the clock. "full" shows the whole board.
+      view: "shabbos",
+    };
+    const viewSwitch = document.getElementById("view-switch");
+
+    function applyView(view) {
+      config.view = view === "full" ? "full" : "shabbos";
+      const shabbos = config.view === "shabbos";
+      document.body.classList.toggle("view-shabbos", shabbos);
+      viewSwitch.textContent = shabbos ? "Whole board" : "Shabbat times";
+      viewSwitch.setAttribute("aria-pressed", shabbos ? "false" : "true");
+    }
+
+    viewSwitch.addEventListener("click", () => {
+      applyView(config.view === "shabbos" ? "full" : "shabbos");
+    });
+
+    applyView(config.view);
+
+    const DAY_LETTER = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳"];
+    const TZ_CITY = {
+      "America/Los_Angeles": "Los Angeles",
+      "America/New_York": "New York",
+      "America/Chicago": "Chicago",
+      "America/Denver": "Denver",
+      "America/Phoenix": "Phoenix",
+      "America/Detroit": "Detroit",
+      "America/Toronto": "Toronto",
+      "America/Vancouver": "Vancouver",
+      "America/Montreal": "Montreal",
+      "Europe/London": "London",
+      "Europe/Paris": "Paris",
+      "Europe/Berlin": "Berlin",
+      "Asia/Jerusalem": "Jerusalem",
+      "Asia/Tel_Aviv": "Tel Aviv",
+      "Australia/Sydney": "Sydney",
+      "Australia/Melbourne": "Melbourne",
+      "America/Sao_Paulo": "Sao Paulo",
+      "America/Mexico_City": "Mexico City",
+      "America/Bogota": "Bogota",
+      "Pacific/Honolulu": "Hawaii",
+      "Europe/Moscow": "Moscow",
+      "Europe/Helsinki": "Helsinki",
+      "Africa/Johannesburg": "Johannesburg",
+      "Europe/Kyiv": "Kiev",
+      "Europe/Kiev": "Kiev",
+      "Europe/Budapest": "Budapest",
+      "America/Argentina/Buenos_Aires": "Buenos Aires",
+    };
+
+    const englishDate = new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+    const englishDay = new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+    });
+    const clockFormat = new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
+    const parshaEnEl = document.getElementById("parsha-en");
+    const parshaHeEl = document.getElementById("parsha-he");
+    const placeEl = document.getElementById("place");
+    const centerParshaEl = document.getElementById("center-parsha");
+    const daysEl = document.getElementById("days");
+    const weekEl = document.getElementById("week");
+    const todayCardEl = document.getElementById("today-card");
+    const parshaCardEl = document.getElementById("parsha-card");
+    const thisShabbosEl = document.getElementById("this-shabbos");
+    const enDateEl = document.getElementById("en-date");
+    const clockEl = document.getElementById("clock");
+    const heDateEl = document.getElementById("he-date");
+    const statusEl = document.getElementById("status");
+
+    let place = null;
+    let boardKey = "";
+
+    function el(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text != null) node.textContent = text;
+      return node;
+    }
+
+    function civilDate(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    function addDays(date, days) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+    }
+
+    function locationForTimezone(tzid) {
+      const preferred = TZ_CITY[tzid];
+      if (preferred) {
+        const match = hebcal.Location.lookup(preferred);
+        if (match) return match;
+      }
+      for (const name of Object.values(TZ_CITY)) {
+        const loc = hebcal.Location.lookup(name);
+        if (loc && loc.getTzid() === tzid) return loc;
+      }
+      return hebcal.Location.lookup("Chicago");
+    }
+
+    function formatWhen(date, tzid) {
+      if (!date || Number.isNaN(date.getTime())) return "—";
+      return new Intl.DateTimeFormat("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: tzid,
+      }).format(date);
+    }
+
+    function callZman(zman, name, args) {
+      try {
+        const value = zman[name](...(args || []));
+        if (value && typeof value.getTime === "function" && !Number.isNaN(value.getTime())) return value;
+      } catch (err) {
+        return null;
+      }
+      return null;
+    }
+
+    function dayTimes(date) {
+      const zman = new hebcal.Zmanim(place, new Date(date.getTime()), false);
+      const tzid = place.getTzid();
+      const pick = (name, args) => {
+        const when = callZman(zman, name, args);
+        return { when, text: formatWhen(when, tzid) };
+      };
+      return {
+        alot: pick("alotHaShachar"),
+        misheyakir: pick("misheyakir"),
+        netz: pick("sunrise"),
+        shemaMga: pick("sofZmanShmaMGA16Point1"),
+        shema: pick("sofZmanShma"),
+        tefilla: pick("sofZmanTfilla"),
+        chatzot: pick("chatzot"),
+        minchaG: pick("minchaGedola"),
+        minchaK: pick("minchaKetana"),
+        plag: pick("plagHaMincha"),
+        sunset: pick("sunset"),
+        tzeit: pick("tzeit"),
+        candles: pick("sunsetOffset", [-18, true]),
+      };
+    }
+
+    function fillPairs(id, rows, now, highlight) {
+      const list = document.getElementById(id);
+      list.replaceChildren();
+      let marked = false;
+      for (const row of rows) {
+        const item = el("li", row.he ? "zline" : "pair");
+        const upcoming = highlight && !marked && row.when && row.when.getTime() > now.getTime();
+        if (upcoming) {
+          item.classList.add("soon");
+          marked = true;
+        }
+        if (row.he) {
+          item.append(el("span", null, row.time), el("span", "he", row.he));
+          item.lang = "he";
+        } else {
+          item.append(el("span", null, row.label), el("span", null, row.time));
+        }
+        list.append(item);
+      }
+    }
+
+    function hebrewDay(hd) {
+      if (hd.getDay() === 6) return "שבת";
+      return "יום " + DAY_LETTER[hd.getDay()];
+    }
+
+    function shortHebrew(text) {
+      return text.replace(/^(פָּרָשַׁת|פָּרָשַׁת|פרשת)\s+/u, "");
+    }
+
+    function readingFor(hd) {
+      const sedra = hebcal.getSedra(hd.getFullYear(), false).lookup(hd);
+      if (sedra.chag) {
+        const events = hebcal.getHolidaysOnDate(sedra.hdate, false) || [];
+        const holiday = events[0];
+        const he = holiday ? holiday.render("he") : "קריאה";
+        const en = holiday ? holiday.render("en") : "Holiday reading";
+        return { he, en, title: he, when: sedra.hdate.greg(), chag: true };
+      }
+      const event = new hebcal.ParshaEvent(sedra);
+      const he = event.render("he");
+      return {
+        he,
+        en: event.render("en"),
+        title: shortHebrew(he),
+        when: sedra.hdate.greg(),
+        chag: false,
+      };
+    }
+
+    function weekendEvents(friday, sunday) {
+      try {
+        return hebcal.calendar({
+          start: new Date(friday.getTime()),
+          end: addDays(sunday, 1),
+          candlelighting: true,
+          location: place,
+          sedrot: true,
+          il: false,
+        }) || [];
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function onCivilDay(ev, day) {
+      const when = ev.eventTime instanceof Date ? ev.eventTime : null;
+      if (!when || Number.isNaN(when.getTime())) return false;
+      return civilDate(when).toDateString() === civilDate(day).toDateString();
+    }
+
+    function findTimed(events, day, mask) {
+      return events.find((ev) => (ev.getFlags() & mask) && onCivilDay(ev, day)) || null;
+    }
+
+    function renderDays(friday, shabbat, sunday, candles, havdalah) {
+      const blocks = [
+        {
+          en: "Friday",
+          he: "ערב שבת",
+          date: friday,
+          rows: [
+            ["מנחה קטנה", dayTimes(friday).minchaK],
+            ["פלג המנחה", dayTimes(friday).plag],
+            ["הדלקת נרות", candles],
+            ["שקיעה", dayTimes(friday).sunset],
+            ["צאת הכוכבים", dayTimes(friday).tzeit],
+          ],
+        },
+        {
+          en: "Shabbos",
+          he: "שבת",
+          date: shabbat,
+          rows: [
+            ["הנץ", dayTimes(shabbat).netz],
+            ["סוף זמן שמע", dayTimes(shabbat).shema],
+            ["סוף זמן תפילה", dayTimes(shabbat).tefilla],
+            ["מנחה גדולה", dayTimes(shabbat).minchaG],
+            ["מנחה קטנה", dayTimes(shabbat).minchaK],
+            ["שקיעה", dayTimes(shabbat).sunset],
+            ["הבדלה", havdalah],
+          ],
+        },
+        {
+          en: "Sunday",
+          he: "יום ראשון",
+          date: sunday,
+          rows: [
+            ["הנץ", dayTimes(sunday).netz],
+            ["סוף זמן שמע", dayTimes(sunday).shema],
+            ["מנחה גדולה", dayTimes(sunday).minchaG],
+            ["שקיעה", dayTimes(sunday).sunset],
+            ["צאת הכוכבים", dayTimes(sunday).tzeit],
+          ],
+        },
+      ];
+
+      daysEl.replaceChildren();
+      for (const block of blocks) {
+        const head = el("div", "day-head");
+        head.append(el("span", null, englishDay.format(block.date)), el("span", "he", block.he));
+        head.querySelector(".he").dir = "rtl";
+        const wrap = el("section");
+        wrap.append(head);
+        for (const [label, time] of block.rows) {
+          const row = el("div", "sched-row");
+          row.append(el("span", "sched-time", time.text), el("span", "sched-he", label));
+          wrap.append(row);
+        }
+        daysEl.append(wrap);
+      }
+
+    }
+
+    function renderWeek(now) {
+      const start = civilDate(now);
+      start.setDate(start.getDate() - start.getDay());
+      weekEl.replaceChildren();
+      let count = 0;
+      for (let i = 0; i < 7; i++) {
+        const day = addDays(start, i);
+        const hd = new hebcal.HDate(day);
+        const events = hebcal.getHolidaysOnDate(hd, false) || [];
+        for (const event of events) {
+          count += 1;
+          const row = el("li", "week-row");
+          row.append(
+            el("span", null, event.render("en")),
+            el("span", "when", englishDay.format(day))
+          );
+          weekEl.append(row);
+        }
+      }
+      if (!count) weekEl.append(el("li", null, "No holidays this week."));
+    }
+
+    function renderBoard(now) {
+      if (!place) {
+        place = locationForTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+      }
+      const hd = hebcal.Zmanim.makeSunsetAwareHDate(place, now, false);
+      const key = now.toDateString() + "|" + hd.toString() + "|" + place.getLatitude() + "," + place.getLongitude();
+      if (key === boardKey) return;
+      boardKey = key;
+
+      const shabbat = civilDate(now);
+      shabbat.setDate(shabbat.getDate() + ((6 - shabbat.getDay() + 7) % 7));
+      const friday = addDays(shabbat, -1);
+      const sunday = addDays(shabbat, 1);
+      const todayTimes = dayTimes(civilDate(now));
+      const fridayTimes = dayTimes(friday);
+      const shabbatTimes = dayTimes(shabbat);
+      const reading = readingFor(hd);
+      const events = weekendEvents(friday, sunday);
+      const flags = hebcal.flags;
+      const candleEv = findTimed(events, friday, flags.LIGHT_CANDLES);
+      const havdalahEv = findTimed(events, shabbat, flags.YOM_TOV_ENDS);
+      const candles = candleEv
+        ? { when: candleEv.eventTime, text: formatWhen(candleEv.eventTime, place.getTzid()) }
+        : fridayTimes.candles;
+      const havdalah = havdalahEv
+        ? { when: havdalahEv.eventTime, text: formatWhen(havdalahEv.eventTime, place.getTzid()) }
+        : shabbatTimes.tzeit;
+
+      const city = place.getShortName() || place.getName() || "This location";
+      placeEl.textContent = city + " · Gra";
+      parshaEnEl.textContent = reading.en.replace(/^Parashat\s+/, "");
+      parshaHeEl.textContent = reading.title;
+      centerParshaEl.textContent = reading.he;
+      heDateEl.textContent = hebrewDay(hd) + " " + hd.renderGematriya(true);
+      enDateEl.textContent = englishDate.format(now);
+
+      fillPairs("shacharis", [
+        { label: "Sunrise", time: todayTimes.netz.text, when: todayTimes.netz.when },
+        { label: "Shema", time: todayTimes.shema.text, when: todayTimes.shema.when },
+        { label: "Shacharit", time: todayTimes.tefilla.text, when: todayTimes.tefilla.when },
+      ], now, true);
+      fillPairs("mincha", [
+        { label: "Gedola", time: todayTimes.minchaG.text, when: todayTimes.minchaG.when },
+        { label: "Ketana", time: todayTimes.minchaK.text, when: todayTimes.minchaK.when },
+        { label: "Plag", time: todayTimes.plag.text, when: todayTimes.plag.when },
+      ], now, true);
+      fillPairs("maariv", [
+        { label: "Sunset", time: todayTimes.sunset.text, when: todayTimes.sunset.when },
+        { label: "Nightfall", time: todayTimes.tzeit.text, when: todayTimes.tzeit.when },
+      ], now, true);
+      fillPairs("special", [
+        { he: "סוף זמן תפילה", time: todayTimes.tefilla.text, when: todayTimes.tefilla.when },
+        { he: "חצות", time: todayTimes.chatzot.text, when: todayTimes.chatzot.when },
+        { he: "מנחה גדולה", time: todayTimes.minchaG.text, when: todayTimes.minchaG.when },
+        { he: "שקיעה", time: todayTimes.sunset.text, when: todayTimes.sunset.when },
+        { he: "צאת", time: todayTimes.tzeit.text, when: todayTimes.tzeit.when },
+      ], now, true);
+      fillPairs("daily", [
+        { he: "עלות השחר", time: todayTimes.alot.text, when: todayTimes.alot.when },
+        { he: "ציצית ותפילין", time: todayTimes.misheyakir.text, when: todayTimes.misheyakir.when },
+        { he: "נץ החמה", time: todayTimes.netz.text, when: todayTimes.netz.when },
+        { he: "סוף ק״ש מ״א", time: todayTimes.shemaMga.text, when: todayTimes.shemaMga.when },
+        { he: "סוף ק״ש גר״א", time: todayTimes.shema.text, when: todayTimes.shema.when },
+      ], now, true);
+
+      fillPairs("leil", [
+        { label: "Mincha", time: fridayTimes.minchaK.text, when: fridayTimes.minchaK.when },
+        { label: "Early candles", time: fridayTimes.plag.text, when: fridayTimes.plag.when },
+        { label: "Candle lighting", time: candles.text, when: candles.when },
+        { label: "Sunset", time: fridayTimes.sunset.text, when: fridayTimes.sunset.when },
+      ], now, false);
+      fillPairs("shabbos-day", [
+        { label: "Sunrise", time: shabbatTimes.netz.text, when: shabbatTimes.netz.when },
+        { label: "Latest Shema", time: shabbatTimes.shema.text, when: shabbatTimes.shema.when },
+        { label: "Mincha Gedola", time: shabbatTimes.minchaG.text, when: shabbatTimes.minchaG.when },
+        { label: "Mincha Ketana", time: shabbatTimes.minchaK.text, when: shabbatTimes.minchaK.when },
+        { label: "Sunset", time: shabbatTimes.sunset.text, when: shabbatTimes.sunset.when },
+        { label: "Havdalah", time: havdalah.text, when: havdalah.when },
+      ], now, false);
+
+      renderDays(friday, shabbat, sunday, candles, havdalah);
+      renderWeek(now);
+
+      const todayEvents = hebcal.getHolidaysOnDate(new hebcal.HDate(civilDate(now)), false) || [];
+      todayCardEl.textContent = todayEvents.length
+        ? todayEvents.map((event) => event.render("en")).join(", ")
+        : "No holiday today.";
+      parshaCardEl.textContent = reading.en + " · " + englishDay.format(reading.when);
+
+      thisShabbosEl.replaceChildren();
+      thisShabbosEl.append(el("strong", null, reading.title));
+      thisShabbosEl.append(el("p", null, reading.en + " · " + englishDate.format(reading.when)));
+      thisShabbosEl.append(el("p", null, "Candle lighting " + candles.text));
+      thisShabbosEl.append(el("p", null, "Havdalah " + havdalah.text));
+    }
+
+    function tick() {
+      const now = new Date();
+      renderBoard(now);
+      clockEl.textContent = clockFormat.format(now);
+      clockEl.dateTime = now.toISOString();
+    }
+
+    if (!window.hebcal || typeof hebcal.HDate !== "function" || typeof hebcal.Zmanim !== "function") {
+      statusEl.hidden = false;
+      statusEl.textContent = "The Hebcal library did not load. Check the network connection and reload.";
+    } else {
+      tick();
+      setInterval(tick, 1000);
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const tzid = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            place = new hebcal.Location(pos.coords.latitude, pos.coords.longitude, false, tzid, "Your location");
+            boardKey = "";
+            renderBoard(new Date());
+          },
+          () => {},
+          { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
+        );
+      }
+    }
+  </script>
+</body>
+</html>
